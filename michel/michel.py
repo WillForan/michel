@@ -17,6 +17,7 @@ from oauth2client.tools import run
 from xdg.BaseDirectory import save_config_path, save_data_path
 import os.path
 import sys
+import pprint
 
 def get_service():
     """
@@ -44,15 +45,19 @@ def print_todolist():
     service = get_service()
     tasks = service.tasks().list(tasklist='@default').execute()
     levels = {}
+    #pprint.pprint(tasks)
     for task in tasks.get('items', []):
+	if task['status'] == 'completed':
+	    continue
         parent_id = task.get('parent')
         if parent_id:
             level = levels[parent_id] + 1
         else:
             level = 0
         levels[task['id']] = level
-        title = task['title'].encode('utf-8')
-        print('\t'.join(['' for i in range(level + 1)]) + title)
+        title   = task['title'].encode('utf-8')
+	duedate = "\t!"+task['due'] if 'due' in task is not None else  ""
+        print('\t'.join(['' for i in range(level + 1)]) + title + duedate)
 
 def wipe_todolist():
     service = get_service()
@@ -74,7 +79,18 @@ def push_todolist(path):
             while line[0] == '\t':
                 line = line[1:]
                 level += 1
-            args = {'tasklist':'@default', 'body':{ 'title' : line } }
+
+	    #what's the python way to do this?
+	    task=line.split("\t!")
+	    if len(task) == 1:
+		title= line
+		duedate= None
+	    else:
+		(title, duedate) = ('\t!'.join(task[:-1]),task[-1])
+
+            args = {'tasklist':'@default', 'body':{ 'title' : title } }
+	    if duedate is not None:
+		args['body']['due']=duedate
             if level:
                 args['parent'] = last_inserted_at_level[level - 1]
             if args.get('parent') != last_inserted:
