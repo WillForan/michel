@@ -18,12 +18,16 @@ which replaces the default todo list with the content of TODO.txt
 Non features
 ------------
 
-Michel aims at being simple: it does not handle due dates nor notes.
+Michel aims at being simple: it does not handle notes. It does not act on individual tasks. 
+It does not handle status. (All complete tasks will be cleared as a consequence)
 
 Syntax
 ------
 
-One line is one task. Indented lines are subtasks of the "parent" line.
+One line is one task. 
+Indented lines are subtasks of the "parent" line.
+Lines ending with an indent,exclimation point, and date are assigned a due date
+e.g. "\t!2011-11-10T13:30:00.000Z"
 
 Suggestion
 ----------
