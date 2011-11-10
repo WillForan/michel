@@ -17,7 +17,8 @@ from oauth2client.tools import run
 from xdg.BaseDirectory import save_config_path, save_data_path
 import os.path
 import sys
-import pprint
+import re
+#import pprint
 
 def get_service():
     """
@@ -80,12 +81,25 @@ def push_todolist(path):
                 line = line[1:]
                 level += 1
 
-	    #what's the python way to do this?
+	    """
+	    " pretty sure we want to and duedate if line ends with \t!####-##-##...
+	    " time in form 2011-11-10T00:00:00.000Z
+	    " what is Z?
+	    " 400 error if date doesn't have .000Z
+	    "TODO:
+	    " could probably search for !####-##-##...
+	    " set match to duedate
+	    " remove match from title string
+	    """
+	    # what's the elgant python way to assign a split string?
+
 	    task=line.split("\t!")
-	    if len(task) == 1:
+	    if len(task) == 1 or not re.match('^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z',task[-1]):
 		title= line
 		duedate= None
 	    else:
+		#just incase there were a bunch of \t! through the task title
+		#only take the last one, join back the rest
 		(title, duedate) = ('\t!'.join(task[:-1]),task[-1])
 
             args = {'tasklist':'@default', 'body':{ 'title' : title } }
